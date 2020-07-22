@@ -4,8 +4,8 @@ namespace BoneBreaker
 {
     public class MainSettings : Plugin
     {
-        public override string getName => "BoneBreaker";
-        private SetEvents SetEvents;
+        public override string getName => nameof(BoneBreaker);
+        public SetEvents SetEvents { get; set; }
 
         public override void OnEnable()
         {
