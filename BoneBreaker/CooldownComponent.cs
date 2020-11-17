@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using RemoteAdmin;
-using EXILED.Extensions;
+using Exiled.API.Features;
 
 namespace BoneBreaker
 {
@@ -9,11 +9,11 @@ namespace BoneBreaker
         public float cooldown = Global.cooldown;
         private float timer = 0f;
         private readonly float timeIsUp = 1f;
-        private ReferenceHub Attacker;
+        private Player Attacker;
 
         public void Start()
         {
-            Attacker = Player.GetPlayer(gameObject);
+            Attacker = Player.Get(gameObject);
         }
 
         public void Update()
@@ -25,37 +25,37 @@ namespace BoneBreaker
                 cooldown -= timeIsUp;
                 if (cooldown == (Global.cooldown - 1f))
                 {
-                    if (Physics.Raycast((gameObject.GetComponent<Scp049PlayerScript>().plyCam.transform.forward * 1.01f) + gameObject.transform.position, gameObject.GetComponent<Scp049PlayerScript>().plyCam.transform.forward, out RaycastHit hit, Global.distance_to_hit))
+                    if (Physics.Raycast((Attacker.CameraTransform.forward * 1.01f) + gameObject.transform.position, Attacker.CameraTransform.forward, out RaycastHit hit, Global.distance_to_hit))
                     {
                         if (hit.transform.GetComponent<QueryProcessor>() == null)
                         {
                             Attacker.ClearBroadcasts();
-                            Attacker.Broadcast(5, "<color=#ff2400>" + Global._notlook + "</color>", true);
+                            Attacker.Broadcast(5, "<color=#ff2400>" + Global._notlook + "</color>", Broadcast.BroadcastFlags.Monospaced);
                         }
                         else
                         {
-                            ReferenceHub p = Player.GetPlayer(hit.transform.GetComponent<QueryProcessor>().PlayerId);
-                            if (p.GetTeam() == Team.SCP)
+                            Player p = Player.Get(hit.transform.GetComponent<QueryProcessor>().PlayerId);
+                            if (p.Team == Team.SCP)
                             {
                                 Attacker.ClearBroadcasts();
-                                Attacker.Broadcast(5, "<color=#ff2400>" + Global._targetscp + "</color>", true);
+                                Attacker.Broadcast(5, "<color=#ff2400>" + Global._targetscp + "</color>", Broadcast.BroadcastFlags.Monospaced);
                             }
                             else
                             {
-                                p.gameObject.GetComponent<Scp173PlayerScript>().CallRpcSyncAudio();
-                                p.playerStats.HurtPlayer(new PlayerStats.HitInfo(Global.hit_damage, Attacker.nicknameSync.Network_myNickSync, DamageTypes.Wall, Attacker.GetPlayerId()), p.gameObject);
+                                p.GameObject.GetComponent<Scp173PlayerScript>().CallRpcSyncAudio();
+                                p.Hurt(Global.hit_damage, Attacker, DamageTypes.Wall);
                                 
                                 p.ClearBroadcasts();
-                                p.Broadcast(10, "<color=#ff0000>*Вы чувствуете резкую боль от удара игрока " + Attacker.nicknameSync.Network_myNickSync + "*</color>", true);
+                                p.Broadcast(10, "<color=#ff0000>*Вы чувствуете резкую боль от удара игрока " + Attacker.Nickname + "*</color>", Broadcast.BroadcastFlags.Monospaced);
                                 Attacker.ClearBroadcasts();
-                                Attacker.Broadcast(10, "<color=#ff0000>" + Global._successhit1 + p.nicknameSync.Network_myNickSync + Global._successhit2 + Global.hit_damage + "</color>", true);
+                                Attacker.Broadcast(10, "<color=#ff0000>" + Global._successhit1 + p.Nickname + Global._successhit2 + Global.hit_damage + "</color>", Broadcast.BroadcastFlags.Monospaced);
                             }
                         }
                     }
                     else
                     {
                         Attacker.ClearBroadcasts();
-                        Attacker.Broadcast(5, "<color=#ff2400>" + Global._notlook + "</color>", true);
+                        Attacker.Broadcast(5, "<color=#ff2400>" + Global._notlook + "</color>", Broadcast.BroadcastFlags.Monospaced);
                     }
                 }
             }
